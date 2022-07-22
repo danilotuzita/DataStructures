@@ -1,5 +1,3 @@
-import sys
-
 class Node:
     value = None
     next_node = None
@@ -7,6 +5,8 @@ class Node:
     def __init__(self, value):
         self.value = value
 
+    def __del__(self):
+        print(f"Deleted Node of value: {self.value}")
 
 
 class LinkedList:
@@ -98,11 +98,34 @@ class LinkedList:
         print(f'[{self.size()}]')
 
 
+    def reverse(self):
+        self._reverse(self.head)
+
+
+    def _reverse(self, current_node: Node, previous_node: Node = None):
+        if current_node is None:
+            self.head = previous_node
+            return
+        
+        next_node: Node = current_node.next_node
+        current_node.next_node = previous_node
+        self._reverse(next_node, current_node)
+
+
+    def clear(self):
+        current_node: Node = self.head
+        while current_node:
+            next_node: Node = current_node.next_node
+            del current_node
+            current_node = next_node
+        self.head = None
+
 
 ll = LinkedList()
 print("Inserting in Linked List")
 ll.print()
 ll.insert(0, 0)
+
 for i in range(1, 10):
     ll.insert(i)
 
@@ -125,5 +148,10 @@ ll.delete(0)
 ll.print()
 ll.delete(5)
 ll.print()
-ll.delete(11)
+# ll.delete(11); ll.print() # index out of bounds
+
+ll.reverse()
+ll.print()
+
+ll.clear()
 ll.print()
