@@ -6,12 +6,13 @@ class Node:
         self.value = value
 
     def __del__(self):
+        return
         print(f"Deleted Node of value: {self.value}")
 
 
 class LinkedList:
     head: Node = None
-
+    
     def insert(self, value, pos: int = -1):
         new_node: Node = Node(value)  # create the new node
         
@@ -75,27 +76,25 @@ class LinkedList:
 
 
     def size(self):  # O(n)
-        if self.head is None:
-            return 0
-        
-        size = 1
+        size = 0
         curr_node = self.head
-        while curr_node.next_node:
+        while curr_node:
             curr_node = curr_node.next_node
             size += 1
         return size
 
-
-    def __getitem__(self, index: int):  # O(n)
-        return self._get_node_at(index).value
-
-
     def print(self):  # O(n)
-        curr_node: Node = self.head
-        while curr_node:
-            print(curr_node.value, end=', ')
-            curr_node = curr_node.next_node
-        print(f'[{self.size()}]')
+        print(self)
+    
+    def __str__(self):
+        size = self.size()
+        output = f"{size} -> ("
+        sep = ''
+        for node in self:
+            output += sep + str(node)
+            sep = ', '
+        output += ")"
+        return output
 
 
     def reverse(self):
@@ -120,38 +119,22 @@ class LinkedList:
             current_node = next_node
         self.head = None
 
+    def __iter__(self):
+        self.n = -1
+        return self
+    
+    def __next__(self):
+        self.n += 1
+        if self.n < self.size():
+            return self[self.n]
+        else:
+            raise StopIteration
 
-ll = LinkedList()
-print("Inserting in Linked List")
-ll.print()
-ll.insert(0, 0)
+    def __getitem__(self, index: int):  # O(n)
+        return self._get_node_at(index).value
 
-for i in range(1, 10):
-    ll.insert(i)
+    def __setitem__(self, index: int, value):  # O(n)
+        self.insert(value, index)
 
-ll.print()
-ll.insert('middle', 5)
-ll.print()
-ll.insert('start', 0)
-ll.print()
-ll.insert('end', ll.size())
-ll.print()
-
-print("\nAcessing Linked List")
-print('ll[5] =', ll[5])
-
-print("\nDeleting from Linked List")
-ll.print()
-ll.delete()
-ll.print()
-ll.delete(0)
-ll.print()
-ll.delete(5)
-ll.print()
-# ll.delete(11); ll.print() # index out of bounds
-
-ll.reverse()
-ll.print()
-
-ll.clear()
-ll.print()
+    def __delitem__(self, index):
+        self.delete(index)
