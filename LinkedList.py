@@ -1,6 +1,6 @@
 class Node:
     value = None
-    next_node = None
+    next_node: 'Node' = None
 
     def __init__(self, value):
         self.value = value
@@ -8,6 +8,9 @@ class Node:
     def __del__(self):
         return
         print(f"Deleted Node of value: {self.value}")
+
+    def __str__(self):
+        return str(self.value)
 
 
 class LinkedList:
@@ -22,9 +25,9 @@ class LinkedList:
             return
    
         prev_node: Node = self._get_node_at(pos - 1)  # find the previous node
-        next_node = prev_node.next_node               # saves the next node
+        next_next_node = prev_node.next_node          # saves the next node
         prev_node.next_node = new_node                # set the new node as the next_node of the previous node
-        new_node.next_node = next_node                # set the next_node of the new node as the next_node
+        new_node.next_node = next_next_node           # set the next_node of the new node as the next_node
         
     
     def delete(self, pos: int = -1):
@@ -83,18 +86,14 @@ class LinkedList:
             size += 1
         return size
 
+
     def print(self):  # O(n)
         print(self)
-    
-    def __str__(self):
+
+
+    def __str__(self, sep=', ') -> str:  #O(n)
         size = self.size()
-        output = f"{size} -> ("
-        sep = ''
-        for node in self:
-            output += sep + str(node)
-            sep = ', '
-        output += ")"
-        return output
+        return f"{size} -> ({sep.join([str(node) for node in self])})"
 
 
     def reverse(self):
@@ -119,16 +118,20 @@ class LinkedList:
             current_node = next_node
         self.head = None
 
-    def __iter__(self):
-        self.n = -1
+
+    def __iter__(self) -> 'LinkedList':
+        self.curr_node = self.head
         return self
-    
-    def __next__(self):
-        self.n += 1
-        if self.n < self.size():
-            return self[self.n]
+
+
+    def __next__(self) -> Node:
+        if self.curr_node:
+            node = self.curr_node
+            self.curr_node = self.curr_node.next_node
+            return node
         else:
             raise StopIteration
+
 
     def __getitem__(self, index: int):  # O(n)
         return self._get_node_at(index).value
