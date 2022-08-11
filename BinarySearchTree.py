@@ -2,9 +2,9 @@ from random import randint
 
 class Node:
     data = None
-    left = None
-    right = None
-    debug = False
+    left: 'Node' = None
+    right: 'Node' = None
+    debug: bool = False
 
     def __init__(self, value, data_type):
         self.data = data_type(value)
@@ -34,126 +34,128 @@ class BinarySearchTree:
     def __init__(self, tree_type: type):
         self.tree_type = tree_type
 
-    def __new_node(self, value) -> Node:
+    def _new_node(self, value) -> Node:
         return Node(value, self.tree_type)
 
-    def __print(self, node: Node):
+    def _print(self, node: Node):
         if node is None: return
-        self.__print(node.left)
+        self._print(node.left)
         print(node.data, end=', ')
-        self.__print(node.right)
+        self._print(node.right)
 
     def print(self):
-        self.__print(self.root)
+        self._print(self.root)
         print()
 
-    def __draw_tree(self, node: Node, level: int = 0):
+    def _draw_tree(self, node: Node, level: int = 0):
         if node is None: return
-        self.__draw_tree(node.right, level + 1)
+        self._draw_tree(node.right, level + 1)
         print(' ' * 6 * level + ' -> ' + str(node.data))
-        self.__draw_tree(node.left, level + 1)
+        self._draw_tree(node.left, level + 1)
     
     def draw_tree(self):
-        self.__draw_tree(self.root)
+        self._draw_tree(self.root)
         print()
 
-    def __find(self, node: Node, value) -> Node:
+    def _find(self, node: Node, value) -> Node:
         if node is None:       # not found
             return None
         if value == node.data: # found
             return node
         if value > node.data:  # go to right
-            return self.__find(node.right, value)
+            return self._find(node.right, value)
         else:                  # go to left
-            return self.__find(node.left, value)
+            return self._find(node.left, value)
 
     def find(self, value) -> Node:
-        node = self.__find(self.root, value)
+        node = self._find(self.root, value)
         return node.data if node else None
 
-    def __min(self, node: Node):
+    def _min(self, node: Node) -> Node:
         while node.left:
             node = node.left
         return node
 
-    def __max(self, node: Node):
+    def _max(self, node: Node) -> Node:
         while node.right:
             node = node.right
         return node
 
     def min(self):
         if self.root is None: return None
-        return self.__min(self.root).data
+        return self._min(self.root).data
         
     def max(self):
         if self.root is None: return None
-        return self.__max(self.root).data
+        return self._max(self.root).data
 
-    def __height(self, node: Node) -> int:
+    def _height(self, node: Node) -> int:
         if node is None: return -1
         return 1 + max(
-            self.__height(node.left),
-            self.__height(node.right)
+            self._height(node.left),
+            self._height(node.right)
         )
 
     def height(self) -> int:
-        return self.__height(self.root)
+        return self._height(self.root)
 
-    def __is_bst(self, node: Node, min_value, max_value):
+    def _is_bst(self, node: Node, min_value, max_value):
         if node is None:
             return True
         return (
             node.data >= min_value and
             node.data <= max_value and
-            self.__is_bst(node.left, min_value, node.data) and
-            self.__is_bst(node.right, node.data, max_value)
+            self._is_bst(node.left, min_value, node.data) and
+            self._is_bst(node.right, node.data, max_value)
         )
 
     def is_bst(self):
-        return self.__is_bst(self.root, -9999999, 9999999)
+        return self._is_bst(self.root, -9999999, 9999999)
 
-    def __remove(self, node: Node, value) -> Node:
+    def _remove(self, node: Node, value) -> Node:
         if node is None:
             return None  # Not found, do nothing
         
         if value < node.data:
-            node.left = self.__remove(node.left, value) # update left tree
+            node.left = self._remove(node.left, value) # update left tree
         elif value > node.data:
-            node.right = self.__remove(node.right, value) # update right tree
+            node.right = self._remove(node.right, value) # update right tree
         else:  # node found
             # NO CHILD
             if node.left is None and node.right is None:  # node has no child, return None
                 return None
             # HAS RIGHT CHILD
             if node.left is None:  # node has only right child, return the right child
-                return self.__balance(node.right)
+                return self._balance(node.right)
             # HAS LEFT CHILD
             if node.right is None: # node has only left child, return the left child
-                return self.__balance(node.left)
+                return self._balance(node.left)
             # HAS BOTH CHILDREN
-            node.data = self.__max(node.left).data  # find the max of left subrtree (could've been min of right subtree)
-            node.left = self.__remove(node.left, node.data) # remove the max of left subtree
+            node.data = self._max(node.left).data  # find the max of left subrtree (could've been min of right subtree)
+            node.left = self._remove(node.left, node.data) # remove the max of left subtree
         
-        return self.__balance(node)  # Returning the updated node
+        return self._balance(node)  # Returning the updated node
 
     def remove(self, value):
-        self.root = self.__remove(self.root, value)        
+        self.root = self._remove(self.root, value)        
 
-    def __sucessor(self, node: Node, value) -> Node:
-        if node is None: return None
+    def _sucessor(self, node: Node, value) -> Node:
+        if node is None:
+            return None
         
         if value == node.data:  # Node found
             if node.right:  # If has right, get min from right subtree
-                return self.__min(node.right)
+                return self._min(node.right)
             return node # If doesn't have right subtree, let previous node handle
 
         sucessor: Node = None  # Find the target node
         if value > node.data:
-            sucessor = self.__sucessor(node.right, value)
+            sucessor = self._sucessor(node.right, value)
         else:
-            sucessor = self.__sucessor(node.left, value)
+            sucessor = self._sucessor(node.left, value)
 
-        if sucessor is None: return None
+        if sucessor is None:
+            return None
 
         if sucessor.data > node.data:  # If the sucessor found is still greater than it's parent
             return sucessor  # let previous node handle
@@ -162,22 +164,22 @@ class BinarySearchTree:
         return node  # keep returning the real sucessor
 
     def sucessor(self, value):
-        node = self.__sucessor(self.root, value)
+        node = self._sucessor(self.root, value)
         return node.data if node else None
 
-    def __predecessor(self, node: Node, value):
+    def _predecessor(self, node: Node, value):
         if node is None: return None
         
         if value == node.data:  # Node found
             if node.left:  # If has left, get max from left subtree
-                return self.__max(node.left)
+                return self._max(node.left)
             return node  # If doesn't have left subtree, let previous node handle
         
         predecessor: Node = None
         if value > node.data:  # Find the target node
-            predecessor = self.__predecessor(node.right, value)
+            predecessor = self._predecessor(node.right, value)
         else:
-            predecessor = self.__predecessor(node.left, value)
+            predecessor = self._predecessor(node.left, value)
 
         if predecessor.data < node.data:  # If the predecessor found is still lesser than it's parent
             return predecessor  # let previous node handle
@@ -186,58 +188,58 @@ class BinarySearchTree:
         return node # keep returning the real predecessor
 
     def predecessor(self, value):
-        node = self.__predecessor(self.root, value)
+        node = self._predecessor(self.root, value)
         return node.data if node else None
 
-    def __balance_factor(self, node: Node) -> int:
+    def _balance_factor(self, node: Node) -> int:
         if node is None: return -1
-        return self.__height(node.right) - self.__height(node.left)
+        return self._height(node.right) - self._height(node.left)
 
-    def __rotate_right(self, node: Node) -> Node:
+    def _rotate_right(self, node: Node) -> Node:
         other_node: Node = node.left
         node.left = other_node.right
         other_node.right = node
         return other_node
     
-    def __rotate_left(self, node: Node) -> Node:
+    def _rotate_left(self, node: Node) -> Node:
         other_node: Node = node.right
         node.right = other_node.left
         other_node.left = node
         return other_node
 
-    def __balance(self, node: Node) -> Node:
-        bf = self.__balance_factor(node)
+    def _balance(self, node: Node) -> Node:
+        bf = self._balance_factor(node)
         if bf == -2:  # left heavy subtree
-            bf2 = self.__balance_factor(node.left)
+            bf2 = self._balance_factor(node.left)
             if bf2 <= 0:  # left left heavy subtree
                 # print(f"Node {node.data} is left left Heavy")
-                return self.__rotate_right(node)
+                return self._rotate_right(node)
             else:         # left right heavy subtree
                 # print(f"Node {node.data} is left right Heavy")
-                node.left = self.__rotate_left(node.left)
-                return self.__rotate_right(node)
+                node.left = self._rotate_left(node.left)
+                return self._rotate_right(node)
         elif bf == 2:  # right heavy subtree
-            bf2 = self.__balance_factor(node.right)
+            bf2 = self._balance_factor(node.right)
             if bf2 >= 0:  # right right heavy subtree
                 # print(f"Node {node.data} is right right heavy")
-                return self.__rotate_left(node)
+                return self._rotate_left(node)
             else:         # right left heavy
                 # print(f"Node {node.data} is right left Heavy")
-                node.right = self.__rotate_right(node.right)
-                return self.__rotate_left(node)
+                node.right = self._rotate_right(node.right)
+                return self._rotate_left(node)
         return node
 
-    def __insert(self, node: Node, value) -> Node:
+    def _insert(self, node: Node, value) -> Node:
         if node is None:
-            return self.__new_node(value)
+            return self._new_node(value)
         if value > node.data:
-            node.right = self.__insert(node.right, value)
+            node.right = self._insert(node.right, value)
         else:
-            node.left = self.__insert(node.left, value)
-        return self.__balance(node)
+            node.left = self._insert(node.left, value)
+        return self._balance(node)
 
     def insert(self, value):
-        self.root = self.__insert(self.root, value)
+        self.root = self._insert(self.root, value)
     
     
     
