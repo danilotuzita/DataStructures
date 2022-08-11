@@ -126,9 +126,9 @@ class LinkedList:
 
     def __next__(self) -> Node:
         if self.curr_node:
-            node = self.curr_node
+            value = self.curr_node.value
             self.curr_node = self.curr_node.next_node
-            return node
+            return value
         else:
             raise StopIteration
 
